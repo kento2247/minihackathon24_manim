@@ -1,0 +1,26 @@
+<!-- form.ejs -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image and Python File Form</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Image and Python File Form</h1>
+        <form action="/submit" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="images">Select images (PNG, JPG, JPEG only):</label>
+                <input type="file" class="form-control-file" id="images" name="images" multiple
+                    accept=".png, .jpg, .jpeg">
+            </div>
+            <div class="form-group">
+                <label for="pythonFile">Select a Python file:</label>
+                <input type="file" class="form-control-file" id="pythonFile" name="pythonFile" accept=".py">
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+</body>
+</html>
