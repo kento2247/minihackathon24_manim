@@ -3,3 +3,5 @@ frontend/uploads/*
 backend/Claude3/__pycache__/*
 backend/Claude3/setting.py
 backend/Output/*
+backend/media/*
+.python-version

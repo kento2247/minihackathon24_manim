@@ -10,12 +10,10 @@ def parse_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--prompt', type=str)
-    parser.add_argument('--path_code', type=str, default='vit.py')
-    parser.add_argument('--dir_image', type=str, default="Images/")
-    parser.add_argument('--image', type=str, default="vit.png")
-
-
+    parser.add_argument('--dir_input', type=str, default="Input/")
     parser.add_argument('--dir_output', type=str, default="Output/")
+    parser.add_argument('--code', type=str, default='vit.py')
+    parser.add_argument('--image', type=str, default="vit.png")
 
     return parser.parse_args()
 
@@ -39,10 +37,11 @@ def extract_code_and_classname(text):
 
 
 def main(args: argparse.Namespace):
-    path_image = os.path.join(args.dir_image, args.image)
+    path_image = os.path.join(args.dir_input, args.image)
+    path_code= os.path.join(args.dir_input, args.code)
     content = run(
         image=path_image,
-        path_source_code=args.path_code
+        path_source_code=path_code
     )
 
 
@@ -53,7 +52,8 @@ def main(args: argparse.Namespace):
     with open(path_code, 'w') as f:
         f.write(code)
     
-    command = ['manim', '-pql', path_code, class_name]
+    command = ['manim', '-pql', '-o', args.dir_output, path_code, class_name]
+
 
     result = subprocess.run(command, capture_output=True, text=True)
 
