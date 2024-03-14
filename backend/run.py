@@ -52,7 +52,7 @@ def main(args: argparse.Namespace):
     with open(path_code, 'w') as f:
         f.write(code)
     
-    command = ['manim', '-pql', '-o', args.dir_output, path_code, class_name]
+    command = ['manim', '-pql', path_code, class_name]
 
 
     result = subprocess.run(command, capture_output=True, text=True)
