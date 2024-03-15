@@ -3,24 +3,33 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Image and Python File Form</title>
+    <title>Image, Python, and TeX File Form</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
     <div class="container">
-        <h1>Image and Python File Form</h1>
+        <h1 class="mt-4">File Upload Form</h1>
+        <p>Upload images, a Python file, and a TeX file to generate a video.</p>
+        <!-- 区切り -->
+        <hr class="divider">
+
         <form action="/submit" method="post" enctype="multipart/form-data">
             <div class="form-group">
                 <label for="images">Select images (PNG, JPG, JPEG only):</label>
                 <input type="file" class="form-control-file" id="images" name="images" multiple
-                    accept=".png, .jpg, .jpeg" required> <!-- required属性を追加 -->
+                    accept=".png, .jpg, .jpeg" required>
             </div>
             <div class="form-group">
                 <label for="pythonFile">Select a Python file:</label>
                 <input type="file" class="form-control-file" id="pythonFile" name="pythonFile" accept=".py" required>
-                <!-- required属性を追加 -->
             </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <div class="form-group">
+                <label for="texFile">Select a TeX file:</label>
+                <input type="file" class="form-control-file" id="texFile" name="texFile" required>
+            </div>
+            <hr class="divider">
+            <!-- Submit button. 画面中央に設置 -->
+            <button type="submit" class="btn btn-primary btn-lg btn-block">Submit</button>
         </form>
     </div>
 </body>

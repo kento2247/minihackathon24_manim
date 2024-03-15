@@ -5,6 +5,7 @@ const { getLocalIP } = require("./utils/ipaddr");
 const { validateExtension } = require("./utils/validateExtension");
 const { backend_request } = require("./utils/backend");
 const fs = require("fs");
+const uuid = require("uuid");
 
 const app = express();
 app.set("view engine", "ejs"); // テンプレートエンジンを設定
@@ -90,8 +91,32 @@ app.post("/submit", async (req, res) => {
     ); // Pythonファイルを保存
     console.log("Python file uploaded");
 
+    // アップロードされたTeXファイルの拡張子を確認。ただしrequiredではない
+    if (files.texFile && files.texFile[0]) {
+      texFile = files.texFile[0];
+      if (!validateExtension(texFile.originalFilename, [".tex"])) {
+        res.render("error", {
+          errorNumber: 400,
+          errorMessage: "Invalid TeX file format",
+          endpoint: "/submit",
+        });
+        return;
+      }
+      backend_post_data["tex_name"] = texFile.originalFilename;
+      await fs.renameSync(
+        texFile.filepath,
+        path.join(__dirname, saveDirName, texFile.originalFilename)
+      ); // TeXファイルを保存
+      console.log("TeX file uploaded");
+    } else {
+      backend_post_data["tex_name"] = "";
+    }
+
+    //今回のリクエストのuuidを生成
+    const requestId = uuid.v4();
     // 進捗状況を示すオブジェクト（仮のデータ）
-    res.render("generating", {});
+    res.render("generating", { output_name: requestId });
+    backend_post_data["output_name"] = requestId;
 
     // バックエンドにPOSTリクエストを送信
     const result = await backend_request(backend_post_data);
@@ -115,7 +140,7 @@ app.get("/get_python", (req, res) => {
     return;
   }
   const code_path = path.join(__dirname, "../backend/Output", code_name);
-  console.log(code_path);
+  // console.log("get_python", code_path);
   if (!fs.existsSync(code_path)) {
     res.status(404).render("error", {
       errorNumber: 404,
@@ -138,13 +163,17 @@ app.get("/get_video", (req, res) => {
     });
     return;
   }
+  //video_nameから.mp4を取り除く
+  const folder_name = video_name.split(".")[0];
   //video_nameを元にvideoを取得
   const video_path = path.join(
     __dirname,
-    "../backend/media/videos/code/480p15",
+    "../backend/media/videos/",
+    folder_name,
+    "480p15",
     video_name
   );
-  console.log(video_path);
+  // console.log("get_video : ", video_path);
   //pathにfileがなかったらエラーを返す
   if (!fs.existsSync(video_path)) {
     res.status(404).render("error", {

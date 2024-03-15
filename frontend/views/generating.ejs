@@ -62,16 +62,24 @@
             max-width: 100%;
             height: auto;
         }
+
+        /* Divider style */
+        .divider {
+            border-top: 1px solid #ccc;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
-<body>
+<body data-outputname="<%= output_name %>">
     <div class="container">
         <div class="header">
-            <h1>Generating</h1>
+            <h1>Generating...</h1>
         </div>
+        <!-- Divider -->
+        <hr class="divider">
         <div class="step">
             <div class="circle circle-green" id="step1"></div>
-            <p>Step 1: Upload</p>
+            <p>Step 1: File Uploading</p>
         </div>
         <div class="step">
             <div class="circle circle-gray" id="step2"></div>
@@ -85,6 +93,7 @@
             <div class="circle circle-gray" id="step4"></div>
             <p>Step 4: Complete</p>
         </div>
+        <hr class="divider">
         <!-- Video container -->
         <div id="video-container">
             <video controls>
@@ -93,9 +102,31 @@
             </video>
         </div>
     </div>
-
-    <!-- JavaScript -->
+    <!-- Bootstrap JavaScript (optional) -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
     <script>
+        let step = 1;
+        function show_step() {
+            if (step == 1) {
+                document.getElementById('step1').classList.remove('circle-gray');
+                document.getElementById('step1').classList.add('circle-green');
+            }
+            else if (step == 2) {
+                document.getElementById('step2').classList.remove('circle-gray');
+                document.getElementById('step2').classList.add('circle-green');
+            }
+            else if (step == 3) {
+                document.getElementById('step3').classList.remove('circle-gray');
+                document.getElementById('step3').classList.add('circle-green');
+            }
+            else if (step == 4) {
+                document.getElementById('step4').classList.remove('circle-gray');
+                document.getElementById('step4').classList.add('circle-green');
+            }
+        }
+        setInterval(show_step, 33);
+
         // .mp4があればURLを取得する
         async function getVideoFile(video_name) {
             const response = await fetch(`/get_video?video_name=${video_name}`);
@@ -109,8 +140,7 @@
                 //URLを生成する
                 const fileURL = URL.createObjectURL(file);
                 //step3をgreenにする
-                document.getElementById('step3').classList.remove('circle-gray');
-                document.getElementById('step3').classList.add('circle-green');
+                step = 3;
                 return fileURL;
             }
         }
@@ -150,22 +180,22 @@
         }
 
         // Check for Python file and then start checking for Video file
+        const output_name = document.body.getAttribute('data-outputname');
         let interval;
         interval = setInterval(async () => {
-            const python_name = "code.py"
+            const python_name = `${output_name}.py`; // Update with the actual output_name
             const pythonURL = await getPythonFile(python_name);
             if (pythonURL) {
                 clearInterval(interval);
                 interval = setInterval(async () => {
-                    const video_name = "ViTAnimation.mp4"
+                    const video_name = `${output_name}.mp4`; // Update with the actual output_name
                     const videoURL = await getVideoFile(video_name);
                     if (videoURL) {
                         clearInterval(interval);
                         document.getElementById('video-container').style.display = 'block';
                         document.querySelector('video').src = videoURL;
                         //step4をgreenにする
-                        document.getElementById('step4').classList.remove('circle-gray');
-                        document.getElementById('step4').classList.add('circle-green');
+                        step = 4;
                     }
                 }, 100); // Check every 0.1 second
             }
