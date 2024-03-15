@@ -59,7 +59,7 @@ app.post("/submit", async (req, res) => {
     //   console.log(`${image.originalFilename} uploaded`);
     // });
 
-    const image = files.images[0];
+    const image = files.image[0];
     if (!validateExtension(image.originalFilename, [".png", ".jpg", ".jpeg"])) {
       res.render("error", {
         errorNumber: 400,

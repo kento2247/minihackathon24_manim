@@ -108,24 +108,41 @@
     <script>
         let step = 1;
         function show_step() {
-            if (step == 1) {
+            if (step > 0) {
                 document.getElementById('step1').classList.remove('circle-gray');
                 document.getElementById('step1').classList.add('circle-green');
             }
-            else if (step == 2) {
+            if (step > 1) {
                 document.getElementById('step2').classList.remove('circle-gray');
                 document.getElementById('step2').classList.add('circle-green');
+                document.getElementById('step1').style.opacity = 1;
             }
-            else if (step == 3) {
+            if (step > 2) {
                 document.getElementById('step3').classList.remove('circle-gray');
                 document.getElementById('step3').classList.add('circle-green');
+                document.getElementById('step2').style.opacity = 1;
             }
-            else if (step == 4) {
+            if (step > 3) {
                 document.getElementById('step4').classList.remove('circle-gray');
                 document.getElementById('step4').classList.add('circle-green');
+                document.getElementById('step3').style.opacity = 1;
             }
+            //step==1の時、step2のopacityを0-0.5-0の間で変化させる
+            if (step == 1) {
+                let step2 = document.getElementById('step2');
+                step2.style.opacity = 0.5 + 0.5 * Math.sin(new Date().getTime() / 200);
+            }
+            if (step == 2) {
+                let step3 = document.getElementById('step3');
+                step3.style.opacity = 0.5 + 0.5 * Math.sin(new Date().getTime() / 200);
+            }
+            if (step == 3) {
+                let step4 = document.getElementById('step4');
+                step4.style.opacity = 0.5 + 0.5 * Math.sin(new Date().getTime() / 200);
+            }
+
         }
-        setInterval(show_step, 33);
+        setInterval(show_step, 50);
 
         // .mp4があればURLを取得する
         async function getVideoFile(video_name) {
@@ -159,24 +176,9 @@
                 const fileURL = URL.createObjectURL(file);
                 console.log("python code generated", fileURL)
                 //step2をgreenにする
-                document.getElementById('step2').classList.remove('circle-gray');
-                document.getElementById('step2').classList.add('circle-green');
+                step = 2;
                 return fileURL;
             }
-        }
-
-        // Function to display video if path is available
-        async function displayVideo() {
-            const interval = setInterval(async () => {
-                const videoPath = await checkVideoPath();
-                if (videoPath) {
-                    const videoContainer = document.getElementById('video-container');
-                    const videoElement = videoContainer.querySelector('video');
-                    videoElement.src = videoPath;
-                    videoContainer.style.display = 'block'; // Display the video container
-                    clearInterval(interval); // Stop checking once video_path is available
-                }
-            }, 100); // Check every 0.1 second
         }
 
         // Check for Python file and then start checking for Video file
@@ -197,9 +199,9 @@
                         //step4をgreenにする
                         step = 4;
                     }
-                }, 100); // Check every 0.1 second
+                }, 200); // Check every 0.1 second
             }
-        }, 100); // Check every 0.1 second
+        }, 200); // Check every 0.1 second
     </script>
 </body>
 </html>

@@ -1,10 +1,35 @@
-<!-- form.ejs -->
-
 <!DOCTYPE html>
 <html>
 <head>
     <title>Image, Python, and TeX File Form</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- レスポンシブ対応 -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        /* Custom styles */
+        body {
+            font-size: 1rem;
+            /* テキストサイズを調整 */
+        }
+
+        .container {
+            margin-top: 50px;
+        }
+
+        .divider {
+            margin-top: 20px;
+            /* 区切りの上の余白を追加 */
+            margin-bottom: 20px;
+            /* 区切りの下の余白を追加 */
+        }
+
+        /* レスポンシブデザインの調整 */
+        @media (max-width: 576px) {
+            body {
+                font-size: 0.9rem;
+                /* スマホ用のフォントサイズ */
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -15,9 +40,9 @@
 
         <form action="/submit" method="post" enctype="multipart/form-data">
             <div class="form-group">
-                <label for="images">Select images (PNG, JPG, JPEG only):</label>
-                <input type="file" class="form-control-file" id="images" name="images" multiple
-                    accept=".png, .jpg, .jpeg" required>
+                <label for="image">Select image (PNG, JPG, JPEG only):</label>
+                <input type="file" class="form-control-file" id="image" name="image" accept=".png, .jpg, .jpeg"
+                    required>
             </div>
             <div class="form-group">
                 <label for="pythonFile">Select a Python file:</label>
@@ -27,7 +52,7 @@
                 <label for="texFile">Select a TeX file:</label>
                 <input type="file" class="form-control-file" id="texFile" name="texFile" required>
             </div>
-            <hr class="divider">
+            <hr class=" divider">
             <!-- Submit button. 画面中央に設置 -->
             <button type="submit" class="btn btn-primary btn-lg btn-block">Submit</button>
         </form>

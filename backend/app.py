@@ -7,7 +7,7 @@ import subprocess
 from Claude3.run import run
 
 app = Flask(__name__)
-
+have_apiAmount=False
 
 def parse_args( code_name, image_name, tex_name, output_name):
     parser = argparse.ArgumentParser()
@@ -42,7 +42,7 @@ def extract_code_and_classname(text):
     return code_text, class_name
 
 
-def main(args: argparse.Namespace, have_apiAmount=True):
+def main(args: argparse.Namespace):
     path_image = os.path.join(args.dir_input, args.image)
     path_code= os.path.join(args.dir_input,  args.code)
     path_tex = os.path.join(args.dir_input, args.tex)
@@ -64,7 +64,13 @@ def main(args: argparse.Namespace, have_apiAmount=True):
     else:
         # 残高不使用のために、一時的に作成
         class_name="ViTAnimation"
+        test_code= os.path.join(args.dir_output, "test.py")
         path_code = os.path.join(args.dir_output, f"{output_name}.py")
+        # test_codeをコピーして、path_codeを作成
+        with open(test_code, 'r') as f:
+            code = f.read()
+        with open(path_code, 'w') as f:
+            f.write(code)
 
     os.makedirs(args.dir_output, exist_ok=True)
     save_name = f"{output_name}.mp4"
@@ -95,7 +101,7 @@ def submit():
     args = parse_args(code_name, image_name,tex_name,output_name)
     
     # main関数を実行する
-    result_path=main(args, have_apiAmount=True)
+    result_path=main(args)
 
     print("Processing complete")
     
