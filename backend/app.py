@@ -7,7 +7,7 @@ import subprocess
 from Claude3.run import run
 
 app = Flask(__name__)
-have_apiAmount=False
+have_apiAmount=True
 
 def parse_args( code_name, image_name, tex_name, output_name):
     parser = argparse.ArgumentParser()
