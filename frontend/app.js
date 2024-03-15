@@ -10,6 +10,9 @@ const app = express();
 app.set("view engine", "ejs"); // テンプレートエンジンを設定
 app.set("views", path.join(__dirname, "views")); // テンプレートファイルのディレクトリを設定
 app.use(express.static(path.join(__dirname, "public"))); // 静的ファイルの提供
+// 静的ファイルの提供を設定し、任意の場所に静的ファイルを配置
+const customStaticPath = path.join(__dirname, "public");
+app.use(express.static(customStaticPath));
 
 // ルートページを提供
 app.get("/", (req, res) => {
@@ -22,7 +25,7 @@ app.get("/", (req, res) => {
 // フォームのPOSTリクエストを処理
 app.post("/submit", async (req, res) => {
   const form = new formidable.IncomingForm();
-  const saveDirName = "../backend/Input";
+  const saveDirName = "uploads"; // アップロードされたファイルを保存するディレクトリ
   let backend_post_data = {};
 
   form.parse(req, async (err, fields, files) => {
@@ -88,24 +91,70 @@ app.post("/submit", async (req, res) => {
     console.log("Python file uploaded");
 
     // 進捗状況を示すオブジェクト（仮のデータ）
-    const progress = {
-      step1: 1,
-      step2: 1,
-      step3: 0,
-      step4: 0,
-    };
-
-    // rendering.ejsテンプレートをレンダリングしてクライアントに送信
-    res.render("generating", { progress: progress });
+    res.render("generating", {});
 
     // バックエンドにPOSTリクエストを送信
-    backend_request(backend_post_data);
+    const result = await backend_request(backend_post_data);
+    console.log("result", result);
   });
 });
 
 // フォームページを提供
 app.get("/submit", (req, res) => {
   res.render("form");
+});
+
+app.get("/get_python", (req, res) => {
+  const code_name = req.query.code_name;
+  if (code_name === undefined) {
+    res.status(400).render("error", {
+      errorNumber: 400,
+      errorMessage: "Bad Request",
+      endpoint: req.originalUrl,
+    });
+    return;
+  }
+  const code_path = path.join(__dirname, "../backend/Output", code_name);
+  console.log(code_path);
+  if (!fs.existsSync(code_path)) {
+    res.status(404).render("error", {
+      errorNumber: 404,
+      errorMessage: "Not Found",
+      endpoint: req.originalUrl,
+    });
+    return;
+  }
+  res.download(code_path);
+});
+
+app.get("/get_video", (req, res) => {
+  //video_nameを取得
+  const video_name = req.query.video_name;
+  if (video_name === undefined) {
+    res.status(400).render("error", {
+      errorNumber: 400,
+      errorMessage: "Bad Request",
+      endpoint: req.originalUrl,
+    });
+    return;
+  }
+  //video_nameを元にvideoを取得
+  const video_path = path.join(
+    __dirname,
+    "../backend/media/videos/code/480p15",
+    video_name
+  );
+  console.log(video_path);
+  //pathにfileがなかったらエラーを返す
+  if (!fs.existsSync(video_path)) {
+    res.status(404).render("error", {
+      errorNumber: 404,
+      errorMessage: "Not Found",
+      endpoint: req.originalUrl,
+    });
+    return;
+  }
+  res.download(video_path);
 });
 
 // 定義されてないパスへのリクエストに対するエラーハンドリング

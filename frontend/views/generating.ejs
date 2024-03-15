@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generating</title>
+    <title>Generating...</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
@@ -49,6 +49,19 @@
         .circle-green {
             background-color: green;
         }
+
+        /* Video container styles */
+        #video-container {
+            display: none;
+            /* 初期状態では非表示 */
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #video-container video {
+            max-width: 100%;
+            height: auto;
+        }
     </style>
 </head>
 <body>
@@ -57,21 +70,106 @@
             <h1>Generating</h1>
         </div>
         <div class="step">
-            <div class="circle <%= progress.step1 ? 'circle-green' : 'circle-gray' %>"></div>
+            <div class="circle circle-green" id="step1"></div>
             <p>Step 1: Upload</p>
         </div>
         <div class="step">
-            <div class="circle <%= progress.step2 ? 'circle-green' : 'circle-gray' %>"></div>
+            <div class="circle circle-gray" id="step2"></div>
             <p>Step 2: Code Regenerating</p>
         </div>
         <div class="step">
-            <div class="circle <%= progress.step3 ? 'circle-green' : 'circle-gray' %>"></div>
+            <div class="circle circle-gray" id="step3"></div>
             <p>Step 3: Video Generating</p>
         </div>
         <div class="step">
-            <div class="circle <%= progress.step4 ? 'circle-green' : 'circle-gray' %>"></div>
+            <div class="circle circle-gray" id="step4"></div>
             <p>Step 4: Complete</p>
         </div>
+        <!-- Video container -->
+        <div id="video-container">
+            <video controls>
+                <source src="" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
     </div>
+
+    <!-- JavaScript -->
+    <script>
+        // .mp4があればURLを取得する
+        async function getVideoFile(video_name) {
+            const response = await fetch(`/get_video?video_name=${video_name}`);
+            //statusが200でない場合はエラーを投げる
+            if (!response.ok) {
+                return null;
+            }
+            else {
+                //fileを取得する
+                const file = await response.blob();
+                //URLを生成する
+                const fileURL = URL.createObjectURL(file);
+                //step3をgreenにする
+                document.getElementById('step3').classList.remove('circle-gray');
+                document.getElementById('step3').classList.add('circle-green');
+                return fileURL;
+            }
+        }
+
+        // .pyがあればURLを取得する
+        async function getPythonFile(python_name) {
+            const response = await fetch(`/get_python?code_name=${python_name}`);
+            //statusが200でない場合はエラーを投げる
+            if (!response.ok) {
+                return null;
+            }
+            else {
+                //fileを取得する
+                const file = await response.blob();
+                //URLを生成する
+                const fileURL = URL.createObjectURL(file);
+                console.log("python code generated", fileURL)
+                //step2をgreenにする
+                document.getElementById('step2').classList.remove('circle-gray');
+                document.getElementById('step2').classList.add('circle-green');
+                return fileURL;
+            }
+        }
+
+        // Function to display video if path is available
+        async function displayVideo() {
+            const interval = setInterval(async () => {
+                const videoPath = await checkVideoPath();
+                if (videoPath) {
+                    const videoContainer = document.getElementById('video-container');
+                    const videoElement = videoContainer.querySelector('video');
+                    videoElement.src = videoPath;
+                    videoContainer.style.display = 'block'; // Display the video container
+                    clearInterval(interval); // Stop checking once video_path is available
+                }
+            }, 100); // Check every 0.1 second
+        }
+
+        // Check for Python file and then start checking for Video file
+        let interval;
+        interval = setInterval(async () => {
+            const python_name = "code.py"
+            const pythonURL = await getPythonFile(python_name);
+            if (pythonURL) {
+                clearInterval(interval);
+                interval = setInterval(async () => {
+                    const video_name = "ViTAnimation.mp4"
+                    const videoURL = await getVideoFile(video_name);
+                    if (videoURL) {
+                        clearInterval(interval);
+                        document.getElementById('video-container').style.display = 'block';
+                        document.querySelector('video').src = videoURL;
+                        //step4をgreenにする
+                        document.getElementById('step4').classList.remove('circle-gray');
+                        document.getElementById('step4').classList.add('circle-green');
+                    }
+                }, 100); // Check every 0.1 second
+            }
+        }, 100); // Check every 0.1 second
+    </script>
 </body>
 </html>

@@ -21,7 +21,7 @@ versionの関係上、manimのShowCreationはCreateとして実装してださ�
 """
 
 
-def run(image: str, path_source_code: str, path_tex: str):
+def run(image: str, path_source_code: str, path_tex: str=""):
     client = anthropic.Anthropic(api_key=api_key)
 
     if os.path.exists(path_source_code):
