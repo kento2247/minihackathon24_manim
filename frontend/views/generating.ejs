@@ -111,21 +111,22 @@
             if (step > 0) {
                 document.getElementById('step1').classList.remove('circle-gray');
                 document.getElementById('step1').classList.add('circle-green');
+                document.getElementById('step1').style.opacity = 1;
             }
             if (step > 1) {
                 document.getElementById('step2').classList.remove('circle-gray');
                 document.getElementById('step2').classList.add('circle-green');
-                document.getElementById('step1').style.opacity = 1;
+                document.getElementById('step2').style.opacity = 1;
             }
             if (step > 2) {
                 document.getElementById('step3').classList.remove('circle-gray');
                 document.getElementById('step3').classList.add('circle-green');
-                document.getElementById('step2').style.opacity = 1;
+                document.getElementById('step3').style.opacity = 1;
             }
             if (step > 3) {
                 document.getElementById('step4').classList.remove('circle-gray');
                 document.getElementById('step4').classList.add('circle-green');
-                document.getElementById('step3').style.opacity = 1;
+                document.getElementById('step4').style.opacity = 1;
             }
             //step==1の時、step2のopacityを0-0.5-0の間で変化させる
             if (step == 1) {
