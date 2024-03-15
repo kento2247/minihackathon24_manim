@@ -40,7 +40,7 @@ def extract_code_and_classname(text):
     return code_text, class_name
 
 
-def main(args: argparse.Namespace, have_apiAmount=True):
+def main(args: argparse.Namespace, have_apiAmount=True, output_name: str=None):
     path_image = os.path.join(args.dir_input, args.image)
     path_code= os.path.join(args.dir_input,  args.code)
     class_name = None
@@ -59,12 +59,11 @@ def main(args: argparse.Namespace, have_apiAmount=True):
     else:
         # 残高不使用のために、一時的に作成
         class_name="ViTAnimation"   
-        path_code = os.path.join(args.dir_output, "code.py")
+        path_code = os.path.join(args.dir_output, f"{output_name}.py")
 
     os.makedirs(args.dir_output, exist_ok=True)
-    
-    command = ['manim', '-pql', path_code, class_name]
-
+    save_name = f"{output_name}.mp4"
+    command = ['manim', '-pql', '-o',  save_name, path_code, class_name]
 
     result = subprocess.run(command, capture_output=True, text=True)
 
@@ -89,7 +88,7 @@ def submit():
     args = parse_args(code_name, image_name)
     
     # main関数を実行する
-    result_path=main(args, have_apiAmount=True)
+    result_path=main(args, have_apiAmount=True, output_name=output_name)
 
     print("Processing complete")
     
