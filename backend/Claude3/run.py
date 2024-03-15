@@ -1,3 +1,4 @@
+import os
 import base64
 
 import anthropic
@@ -23,11 +24,17 @@ versionの関係上、manimのShowCreationはCreateとして実装してださ�
 def run(image: str, path_source_code: str, path_tex: str):
     client = anthropic.Anthropic(api_key=api_key)
 
-    with open(path_source_code, 'r', encoding='utf-8') as file:
-        file_contents = file.read()
+    if os.path.exists(path_source_code):
+        with open(path_source_code, 'r', encoding='utf-8') as file:
+            file_contents = file.read()
+    else:
+        file_contents = ""
 
-    with open(path_tex, 'r', encoding='utf-8') as f:
-        tex_contents = f.read()
+    if os.path.exists(path_tex):
+        with open(path_tex, 'r', encoding='utf-8') as f:
+            tex_contents = f.read()
+    else:
+        tex_contents = ""
 
     prompt = PROMPT.replace("<code>", file_contents).replace("<method>", tex_contents)
 
