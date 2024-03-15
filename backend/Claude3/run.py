@@ -5,24 +5,31 @@ import anthropic
 from Claude3.setting import api_key
 
 PROMPT = """
-以下に、ある手法におけるmodelのソースコードを示しています。また、論文中に示されているモデル図を別に入力として渡します。
+以下に、ある手法におけるmodelのソースコードおよび論文中の手法部分を示しています。また、論文中に示されているモデル図を別に入力として渡します。
 このモデル図の画像中のモデル構造に加え、ソースコードの内容を用いて、モデルの処理を可視化したものをアニメーションで解説したいです。manimを用いてpythonコードを書いてください。
-特徴量などは円形を用いて表示すれば良いです。また、各animationが何を表しているかを適宜テキストを表示して説明してください。テキストは図に被らないように、左上に表示するようにしてください。
-常に画面内に収まるようにしてください。横幅は850, 縦幅は480です。
+特徴量などは円形を用いて表示すれば良いです。また、各animationが何を表しているかを適宜テキストを表示して説明してください。テキストは図に被らないように、左上に表示してください。
+ただし、重複しないように新しいテキストを表示する際は、以前のテキストは削除するようにしてください。常に画面内に収まるようにしてください。横幅は850, 縦幅は480です。
+最後に、animationを作るにあたって画像は使用しないでください。
 versionの関係上、manimのShowCreationはCreateとして実装してださい。
 
-# ソースコード
+# methods
+<method>
+
+# code
 <code>
 """
 
 
-def run(image: str, path_source_code: str):
+def run(image: str, path_source_code: str, path_tex: str):
     client = anthropic.Anthropic(api_key=api_key)
 
     with open(path_source_code, 'r', encoding='utf-8') as file:
         file_contents = file.read()
 
-    prompt = PROMPT.replace("<code>", file_contents)
+    with open(path_tex, 'r', encoding='utf-8') as f:
+        tex_contents = f.read()
+
+    prompt = PROMPT.replace("<code>", file_contents).replace("<method>", tex_contents)
 
     with open(image, 'rb') as img_file:
         image_data = img_file.read()

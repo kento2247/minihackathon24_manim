@@ -14,6 +14,7 @@ def parse_args():
     parser.add_argument('--dir_output', type=str, default="Output/")
     parser.add_argument('--code', type=str, default='vit.py')
     parser.add_argument('--image', type=str, default="vit.png")
+    parser.add_argument('--tex', type=str, default="vit.tex")
 
     return parser.parse_args()
 
@@ -39,11 +40,12 @@ def extract_code_and_classname(text):
 def main(args: argparse.Namespace):
     path_image = os.path.join(args.dir_input, args.image)
     path_code= os.path.join(args.dir_input, args.code)
+    path_tex = os.path.join(args.dir_input, args.tex)
     content = run(
         image=path_image,
-        path_source_code=path_code
+        path_source_code=path_code,
+        path_tex = path_tex
     )
-
 
     code, class_name = extract_code_and_classname(content)
     os.makedirs(args.dir_output, exist_ok=True)
@@ -53,8 +55,6 @@ def main(args: argparse.Namespace):
         f.write(code)
     
     command = ['manim', '-pql', path_code, class_name]
-
-
     result = subprocess.run(command, capture_output=True, text=True)
 
     if result.returncode == 0:
