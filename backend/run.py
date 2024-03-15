@@ -14,7 +14,7 @@ def parse_args():
     parser.add_argument('--dir_output', type=str, default="Output/")
     parser.add_argument('--code', type=str, default='vit.py')
     parser.add_argument('--image', type=str, default="vit.png")
-    parser.add_argument('--tex', type=str, default="vit.tex")
+    parser.add_argument('--tex', type=str, default="vit_method.tex")
 
     return parser.parse_args()
 
@@ -55,6 +55,7 @@ def main(args: argparse.Namespace):
         f.write(code)
     
     command = ['manim', '-pql', path_code, class_name]
+
     result = subprocess.run(command, capture_output=True, text=True)
 
     if result.returncode == 0:

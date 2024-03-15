@@ -1,59 +1,105 @@
 const express = require("express");
 const formidable = require("formidable");
-const fs = require("fs");
 const path = require("path");
 const { getLocalIP } = require("./utils/ipaddr");
 const { validateExtension } = require("./utils/validateExtension");
+const { backend_request } = require("./utils/backend");
+const fs = require("fs");
 
 const app = express();
 app.set("view engine", "ejs"); // テンプレートエンジンを設定
 app.set("views", path.join(__dirname, "views")); // テンプレートファイルのディレクトリを設定
 app.use(express.static(path.join(__dirname, "public"))); // 静的ファイルの提供
 
-// フォームのPOSTリクエストを処理
-app.post("/submit", (req, res) => {
-  console.log("post arrived");
+// ルートページを提供
+app.get("/", (req, res) => {
+  const endpoints = app._router.stack
+    .filter((r) => r.route && r.route.methods.get) // GETメソッドのみをフィルタリング
+    .map((r) => r.route.path);
+  res.render("index", { endpoints });
+});
 
+// フォームのPOSTリクエストを処理
+app.post("/submit", async (req, res) => {
   const form = new formidable.IncomingForm();
-  form.parse(req, (err, fields, files) => {
+  const saveDirName = "../backend/Input";
+  let backend_post_data = {};
+
+  form.parse(req, async (err, fields, files) => {
     if (err) {
-      console.error(err);
-      res.status(500).send("Internal Server Error");
+      res.render("error", {
+        errorNumber: 500,
+        errorMessage: "Internal Server Error",
+        endpoint: "/submit",
+      });
       return;
     }
 
     // アップロードされた画像の拡張子を確認
-    const images = Array.isArray(files.images) ? files.images : [files.images];
-    images.forEach((image) => {
-      if (!validateExtension(image.name, [".png", ".jpg", ".jpeg"])) {
-        res.status(400).send("Invalid image file format");
-        return;
-      }
-      images.forEach((image) => {
-        fs.renameSync(image.path, path.join(__dirname, "uploads", image.name));
-      });
-      console.log(`${image.name} uploaded`);
-    });
+    // const images = Array.isArray(files.images) ? files.images : [files.images];
+    // images.forEach((image) => {
+    //   if (
+    //     !validateExtension(image.originalFilename, [".png", ".jpg", ".jpeg"])
+    //   ) {
+    //     res.render("error", {
+    //       errorNumber: 400,
+    //       errorMessage: "Invalid image format",
+    //       endpoint: "/submit",
+    //     });
+    //     return;
+    //   }
+    //   fs.renameSync(
+    //     image.filepath,
+    //     path.join(__dirname, saveDirName, image.originalFilename)
+    //   );
+    //   console.log(`${image.originalFilename} uploaded`);
+    // });
 
-    // アップロードされたPythonファイルの拡張子を確認
-    const pythonFile = files.pythonFile;
-    console.log("pythonFile", pythonFile);
-    if (!validateExtension(pythonFile.name, [".py"])) {
-      res.status(400).send("Invalid Python file format");
+    const image = files.images[0];
+    if (!validateExtension(image.originalFilename, [".png", ".jpg", ".jpeg"])) {
+      res.render("error", {
+        errorNumber: 400,
+        errorMessage: "Invalid Image file format",
+        endpoint: "/submit",
+      });
       return;
     }
+    backend_post_data["image_name"] = image.originalFilename;
+    await fs.renameSync(
+      image.filepath,
+      path.join(__dirname, saveDirName, image.originalFilename)
+    ); // Imageファイルを保存
 
-    // Pythonファイルを保存
-    fs.renameSync(
-      pythonFile.path,
-      path.join(__dirname, "uploads", pythonFile.name)
-    );
+    // アップロードされたPythonファイルの拡張子を確認
+    const pythonFile = files.pythonFile[0];
+    if (!validateExtension(pythonFile.originalFilename, [".py"])) {
+      res.render("error", {
+        errorNumber: 400,
+        errorMessage: "Invalid Python file format",
+        endpoint: "/submit",
+      });
+      return;
+    }
+    backend_post_data["code_name"] = pythonFile.originalFilename;
+    await fs.renameSync(
+      pythonFile.filepath,
+      path.join(__dirname, saveDirName, pythonFile.originalFilename)
+    ); // Pythonファイルを保存
     console.log("Python file uploaded");
 
-    // 成功を通知
-    res
-      .status(200)
-      .send("<html><body><h1>Form submitted successfully!</h1></body></html>");
+    // 進捗状況を示すオブジェクト（仮のデータ）
+    const progress = {
+      step1: 1,
+      step2: 1,
+      step3: 0,
+      step4: 0,
+    };
+
+    // rendering.ejsテンプレートをレンダリングしてクライアントに送信
+    res.render("generating", { progress: progress });
+
+    // バックエンドにPOSTリクエストを送信
+    backend_request(backend_post_data);
   });
 });
 
@@ -64,7 +110,11 @@ app.get("/submit", (req, res) => {
 
 // 定義されてないパスへのリクエストに対するエラーハンドリング
 app.use((req, res) => {
-  res.status(404).send("<html><body><h1>Page Not Found</h1></body></html>");
+  res.status(404).render("error", {
+    errorNumber: 404,
+    errorMessage: "Not Found",
+    endpoint: req.originalUrl,
+  });
 });
 
 // サーバーを起動
